@@ -1,24 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // State management
-    let currentTopic = null;
-    let conversationHistory = [];
-    const API_URL = 'http://localhost:3000/api';
-
-    // DOM Elements
-    const chatMessages = document.getElementById('chat-messages');
-    const chatForm = document.getElementById('chat-form');
-    const userInput = document.getElementById('user-input');
-    const calculatorModal = document.getElementById('calculator-modal');
-    const closeModal = document.querySelector('.close-modal');
-    const calculatorTabs = document.querySelectorAll('.tab-btn');
-    const quickActionBtns = document.querySelectorAll('.quick-action-btn');
-    const newChatBtn = document.querySelector('.new-chat-btn');
-
-    // Dark Mode Toggle
+    // Theme Toggle
     const themeToggle = document.querySelector('.theme-toggle');
     const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
     
-    // Check for saved theme preference or use system preference
     const currentTheme = localStorage.getItem('theme') || 
         (prefersDarkScheme.matches ? 'dark' : 'light');
     
@@ -39,418 +23,195 @@ document.addEventListener('DOMContentLoaded', () => {
             '<i class="fas fa-moon"></i>';
     });
 
-    // Mobile Menu Toggle
-    const mobileMenuBtn = document.querySelector('.mobile-menu');
-    const navLinks = document.querySelector('.nav-links');
-    
-    mobileMenuBtn.addEventListener('click', () => {
-        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+    // Chat Elements
+    const messagesContainer = document.getElementById('messages');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-btn');
+    const newChatButton = document.querySelector('.new-chat-btn');
+    const actionButtons = document.querySelectorAll('.action-btn');
+
+    // Auto-resize textarea
+    userInput.addEventListener('input', () => {
+        userInput.style.height = 'auto';
+        userInput.style.height = userInput.scrollHeight + 'px';
     });
 
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.nav-links') && !e.target.closest('.mobile-menu')) {
-            navLinks.style.display = 'none';
+    // Send message function
+    function sendMessage() {
+        const message = userInput.value.trim();
+        if (message) {
+            addMessage('user', message);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // Show typing indicator
+            const typingIndicator = addTypingIndicator();
+            
+            // Generate AI response
+            setTimeout(() => {
+                // Remove typing indicator
+                typingIndicator.remove();
+                
+                // Generate response based on user input
+                const response = generateAIResponse(message);
+                addMessage('ai', response);
+            }, 1000);
         }
-    });
+    }
 
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                // Close mobile menu after clicking
-                navLinks.style.display = 'none';
-            }
-        });
-    });
+    // Add typing indicator
+    function addTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message ai-message typing';
+        
+        const typingContent = document.createElement('div');
+        typingContent.className = 'message-content';
+        
+        const header = document.createElement('div');
+        header.className = 'message-header';
+        header.innerHTML = '<i class="fas fa-robot"></i><span>Financial AI</span>';
+        
+        const dots = document.createElement('div');
+        dots.className = 'typing-dots';
+        dots.innerHTML = '<span></span><span></span><span></span>';
+        
+        typingContent.appendChild(header);
+        typingContent.appendChild(dots);
+        typingDiv.appendChild(typingContent);
+        messagesContainer.appendChild(typingDiv);
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        return typingDiv;
+    }
 
-    // Active navigation link based on scroll position
-    const sections = document.querySelectorAll('section');
-    const navItems = document.querySelectorAll('.nav-links a');
+    // Generate AI response
+    function generateAIResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        // Check for specific keywords and provide relevant responses
+        if (lowerMessage.includes('investment') || lowerMessage.includes('invest')) {
+            return "I can help you with investment planning! Here are some key points to consider:\n\n" +
+                   "1. Diversification: Spread your investments across different assets\n" +
+                   "2. Risk Assessment: Consider your risk tolerance\n" +
+                   "3. Long-term Goals: Focus on your financial objectives\n\n" +
+                   "Would you like to use our investment calculator to explore potential returns?";
+        }
+        
+        if (lowerMessage.includes('loan') || lowerMessage.includes('emi')) {
+            return "I can assist you with loan management! Here's what you should know:\n\n" +
+                   "1. EMI Calculation: Understand your monthly payments\n" +
+                   "2. Interest Rates: Compare different loan options\n" +
+                   "3. Loan Tenure: Choose the right duration\n\n" +
+                   "Would you like to use our loan calculator to analyze your options?";
+        }
+        
+        if (lowerMessage.includes('goal') || lowerMessage.includes('planning')) {
+            return "Let's help you achieve your financial goals! Consider these aspects:\n\n" +
+                   "1. Goal Setting: Define clear objectives\n" +
+                   "2. Time Horizon: Plan for short and long term\n" +
+                   "3. Regular Review: Monitor your progress\n\n" +
+                   "Would you like to use our financial planning calculator to estimate your needs?";
+        }
+        
+        if (lowerMessage.includes('calculator') || lowerMessage.includes('calculate')) {
+            return "You can access our financial calculators by clicking the 'Financial Calculators' link in the sidebar. We offer:\n\n" +
+                   "1. SIP Calculator: Plan your investments\n" +
+                   "2. Loan Calculator: Calculate EMIs\n" +
+                   "3. Financial Planning Calculator: Set your goals";
+        }
+        
+        // Default response for other queries
+        return "I'm your AI financial assistant. I can help you with:\n\n" +
+               "1. Investment Planning\n" +
+               "2. Loan Management\n" +
+               "3. Financial Goals\n\n" +
+               "You can also use our financial calculators by clicking the calculator link in the sidebar. How can I assist you today?";
+    }
 
-    window.addEventListener('scroll', () => {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= sectionTop - 60) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('href') === `#${current}`) {
-                item.classList.add('active');
-            }
-        });
-    });
-
-    // Add animation to feature cards on scroll
-    const observerOptions = {
-        threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.feature-card, .tool-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        observer.observe(card);
-    });
-
-    // Chat Functions
-    function addMessage(content, isUser = false) {
+    // Add message to chat
+    function addMessage(type, content) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+        messageDiv.className = `message ${type}-message`;
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
         
-        if (!isUser) {
+        if (type === 'ai') {
             const header = document.createElement('div');
             header.className = 'message-header';
             header.innerHTML = '<i class="fas fa-robot"></i><span>Financial AI</span>';
             messageContent.appendChild(header);
         }
         
-        const messageText = document.createElement('p');
-        messageText.textContent = content;
-        messageContent.appendChild(messageText);
+        const text = document.createElement('p');
+        text.innerHTML = content.replace(/\n/g, '<br>');
+        messageContent.appendChild(text);
         
         messageDiv.appendChild(messageContent);
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Add to conversation history
-        conversationHistory.push({
-            content,
-            isUser
-        });
-    }
-
-    async function getAIResponse(message) {
-        try {
-            const response = await fetch(`${API_URL}/chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message,
-                    conversationHistory,
-                    topic: currentTopic
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to get AI response');
-            }
-
-            const data = await response.json();
-            return data.response;
-        } catch (error) {
-            console.error('Error:', error);
-            return "I'm sorry, I'm having trouble processing your request. Please try again.";
-        }
-    }
-
-    function handleQuickAction(topic) {
-        currentTopic = topic;
-        let prompt = '';
+        messagesContainer.appendChild(messageDiv);
         
-        switch (topic) {
-            case 'invest':
-                prompt = "Let's build your investment strategy. What's your yearly income?";
-                break;
-            case 'loans':
-                prompt = "Let's plan your debt-free journey. How many loans do you have?";
-                break;
-            case 'planning':
-                prompt = "What would you like to plan for? (e.g., car, house, travel)";
-                break;
-        }
-        
-        addMessage(prompt);
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     // Event Listeners
-    quickActionBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            handleQuickAction(btn.dataset.topic);
-        });
-    });
-
-    chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const message = userInput.value.trim();
-        if (!message) return;
-
-        addMessage(message, true);
-        userInput.value = '';
-
-        // Show loading state
-        const loadingMessage = addMessage("Thinking...", false);
-        
-        try {
-            const aiResponse = await getAIResponse(message);
-            // Remove loading message
-            chatMessages.removeChild(loadingMessage);
-            addMessage(aiResponse);
-        } catch (error) {
-            console.error('Error:', error);
-            chatMessages.removeChild(loadingMessage);
-            addMessage("I'm sorry, I encountered an error. Please try again.");
+    sendButton.addEventListener('click', sendMessage);
+    
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
     });
 
-    // Calculator Modal
-    document.querySelector('[data-action="calculator"]').addEventListener('click', () => {
-        calculatorModal.classList.add('active');
+    newChatButton.addEventListener('click', () => {
+        messagesContainer.innerHTML = '';
+        addMessage('ai', "Hello! I'm your AI financial assistant. How can I help you today?");
     });
 
-    closeModal.addEventListener('click', () => {
-        calculatorModal.classList.remove('active');
-    });
-
-    calculatorTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            calculatorTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            updateCalculatorForm(tab.dataset.calc);
-        });
-    });
-
-    function updateCalculatorForm(type) {
-        const formContainer = document.querySelector('.calculator-form');
-        let formHTML = '';
-
-        switch (type) {
-            case 'investment':
-                formHTML = `
-                    <div class="form-group">
-                        <label>Initial Investment Amount</label>
-                        <div class="input-group">
-                            <span class="input-prefix">₹</span>
-                            <input type="number" id="principal" placeholder="Enter amount" min="0">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Expected Annual Return (%)</label>
-                        <div class="input-group">
-                            <input type="number" id="rate" placeholder="Enter rate" min="0" max="100">
-                            <span class="input-suffix">%</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Investment Period</label>
-                        <div class="input-group">
-                            <input type="number" id="years" placeholder="Enter years" min="1">
-                            <span class="input-suffix">years</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Monthly Contribution</label>
-                        <div class="input-group">
-                            <span class="input-prefix">₹</span>
-                            <input type="number" id="monthly" placeholder="Enter amount" min="0">
-                        </div>
-                    </div>
-                    <button class="calculate-btn">
-                        <i class="fas fa-calculator"></i> Calculate
-                    </button>
-                `;
-                break;
-            case 'loan':
-                formHTML = `
-                    <div class="form-group">
-                        <label>Loan Amount</label>
-                        <div class="input-group">
-                            <span class="input-prefix">₹</span>
-                            <input type="number" id="principal" placeholder="Enter amount" min="0">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Interest Rate</label>
-                        <div class="input-group">
-                            <input type="number" id="rate" placeholder="Enter rate" min="0" max="100">
-                            <span class="input-suffix">%</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Loan Term</label>
-                        <div class="input-group">
-                            <input type="number" id="years" placeholder="Enter years" min="1">
-                            <span class="input-suffix">years</span>
-                        </div>
-                    </div>
-                    <button class="calculate-btn">
-                        <i class="fas fa-calculator"></i> Calculate EMI
-                    </button>
-                `;
-                break;
-            case 'planning':
-                formHTML = `
-                    <div class="form-group">
-                        <label>Goal Amount</label>
-                        <div class="input-group">
-                            <span class="input-prefix">₹</span>
-                            <input type="number" id="goal" placeholder="Enter amount" min="0">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Time Horizon</label>
-                        <div class="input-group">
-                            <input type="number" id="years" placeholder="Enter years" min="1">
-                            <span class="input-suffix">years</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Expected Inflation Rate</label>
-                        <div class="input-group">
-                            <input type="number" id="inflation" placeholder="Enter rate" min="0" max="100">
-                            <span class="input-suffix">%</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Current Savings</label>
-                        <div class="input-group">
-                            <span class="input-prefix">₹</span>
-                            <input type="number" id="savings" placeholder="Enter amount" min="0">
-                        </div>
-                    </div>
-                    <button class="calculate-btn">
-                        <i class="fas fa-calculator"></i> Calculate Plan
-                    </button>
-                `;
-                break;
-        }
-
-        formContainer.innerHTML = formHTML;
-        setupCalculator(type);
-    }
-
-    function setupCalculator(type) {
-        const calculateBtn = document.querySelector('.calculate-btn');
-        calculateBtn.addEventListener('click', async () => {
-            const formData = getFormData(type);
+    actionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const action = button.textContent.trim();
+            addMessage('user', `I want to learn more about ${action}`);
             
-            try {
-                const response = await fetch(`${API_URL}/calculate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        type,
-                        data: formData
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Calculation failed');
+            // Show typing indicator
+            const typingIndicator = addTypingIndicator();
+            
+            setTimeout(() => {
+                // Remove typing indicator
+                typingIndicator.remove();
+                
+                let response = '';
+                switch(action) {
+                    case 'Investment Planning':
+                        response = "Investment planning involves creating a strategy to grow your wealth over time. Here's what you should know:\n\n" +
+                                 "1. Asset Allocation: Diversify across different investment types\n" +
+                                 "2. Risk Management: Understand your risk tolerance\n" +
+                                 "3. Regular Monitoring: Review and adjust your portfolio\n\n" +
+                                 "Would you like to use our investment calculator to explore potential returns?";
+                        break;
+                    case 'Loan Management':
+                        response = "Loan management helps you understand and optimize your debt. Key aspects include:\n\n" +
+                                 "1. EMI Planning: Calculate and manage monthly payments\n" +
+                                 "2. Interest Optimization: Find the best rates\n" +
+                                 "3. Debt Consolidation: Simplify multiple loans\n\n" +
+                                 "Would you like to use our loan calculator to analyze your options?";
+                        break;
+                    case 'Financial Goals':
+                        response = "Setting and achieving financial goals is crucial for long-term success. Consider:\n\n" +
+                                 "1. Goal Setting: Define clear objectives\n" +
+                                 "2. Time Horizon: Plan for short and long term\n" +
+                                 "3. Regular Review: Monitor your progress\n\n" +
+                                 "Would you like to use our financial planning calculator to estimate your needs?";
+                        break;
                 }
-
-                const result = await response.json();
-                displayCalculatorResult(type, result.result);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to perform calculation. Please try again.');
-            }
+                addMessage('ai', response);
+            }, 1000);
         });
-    }
-
-    function getFormData(type) {
-        const formData = {};
-        const inputs = document.querySelectorAll('.calculator-form input');
-        
-        inputs.forEach(input => {
-            formData[input.id] = parseFloat(input.value) || 0;
-        });
-        
-        return formData;
-    }
-
-    function displayCalculatorResult(type, result) {
-        const resultsContainer = document.querySelector('.calculator-results');
-        let resultHTML = '';
-
-        switch (type) {
-            case 'investment':
-                resultHTML = `
-                    <h3>Investment Results</h3>
-                    <p>
-                        <span>Total Amount</span>
-                        <span>₹${result.totalAmount.toLocaleString()}</span>
-                    </p>
-                    <p>
-                        <span>Total Contribution</span>
-                        <span>₹${result.totalContribution.toLocaleString()}</span>
-                    </p>
-                    <p>
-                        <span>Interest Earned</span>
-                        <span>₹${result.interestEarned.toLocaleString()}</span>
-                    </p>
-                `;
-                break;
-            case 'loan':
-                resultHTML = `
-                    <h3>Loan Results</h3>
-                    <p>
-                        <span>Monthly EMI</span>
-                        <span>₹${result.emi.toLocaleString()}</span>
-                    </p>
-                    <p>
-                        <span>Total Payment</span>
-                        <span>₹${result.totalPayment.toLocaleString()}</span>
-                    </p>
-                    <p>
-                        <span>Total Interest</span>
-                        <span>₹${result.totalInterest.toLocaleString()}</span>
-                    </p>
-                `;
-                break;
-            case 'planning':
-                resultHTML = `
-                    <h3>Financial Plan</h3>
-                    <p>
-                        <span>Inflation Adjusted Amount</span>
-                        <span>₹${result.inflationAdjustedAmount.toLocaleString()}</span>
-                    </p>
-                    <p>
-                        <span>Required Monthly Savings</span>
-                        <span>₹${result.monthlySavings.toLocaleString()}</span>
-                    </p>
-                    <p>
-                        <span>Total Savings Needed</span>
-                        <span>₹${result.totalSavings.toLocaleString()}</span>
-                    </p>
-                `;
-                break;
-        }
-
-        resultsContainer.innerHTML = resultHTML;
-    }
-
-    // New Chat
-    newChatBtn.addEventListener('click', () => {
-        chatMessages.innerHTML = '';
-        currentTopic = null;
-        conversationHistory = [];
-        addMessage("Hello! I'm your AI financial assistant. How can I help you today?");
     });
+
+    // Initial welcome message
+    addMessage('ai', "Hello! I'm your AI financial assistant. How can I help you today?");
 }); 

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Calculator - Financial AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="calculator.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>Financial AI</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Back to Chat</a>
+                <button class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Calculator Container -->
+    <main class="calculator-page">
+        <div class="calculator-container">
+            <div class="calculator-header">
+                <h1>Financial Calculators</h1>
+                <p>Plan your financial future with our advanced calculators</p>
+            </div>
+
+            <div class="calculator-tabs">
+                <button class="tab-btn active" data-calc="sip">
+                    <i class="fas fa-chart-line"></i> SIP Calculator
+                </button>
+                <button class="tab-btn" data-calc="debt">
+                    <i class="fas fa-hand-holding-usd"></i> Debt Repayment
+                </button>
+                <button class="tab-btn" data-calc="retirement">
+                    <i class="fas fa-umbrella"></i> Retirement Planning
+                </button>
+                <button class="tab-btn" data-calc="allocation">
+                    <i class="fas fa-balance-scale"></i> Asset Allocation
+                </button>
+            </div>
+
+            <div class="calculator-content">
+                <!-- SIP Calculator -->
+                <div class="calculator-section active" id="sip-calculator">
+                    <div class="calculator-grid">
+                        <div class="calculator-form">
+                            <div class="form-group">
+                                <label>Monthly Investment</label>
+                                <div class="input-group">
+                                    <span class="input-prefix">₹</span>
+                                    <input type="number" id="monthly" placeholder="Enter amount" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Expected Return Rate (p.a)</label>
+                                <div class="input-group">
+                                    <input type="number" id="rate" placeholder="Enter rate" min="0" max="100">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Time Period</label>
+                                <div class="input-group">
+                                    <input type="number" id="years" placeholder="Enter years" min="1">
+                                    <span class="input-suffix">Yr</span>
+                                </div>
+                            </div>
+                            <button class="calculate-btn" id="calculate-sip">
+                                <i class="fas fa-calculator"></i> Calculate
+                            </button>
+                        </div>
+
+                        <div class="calculator-results">
+                            <div class="results-header">
+                                <h3>SIP Calculator Results</h3>
+                                <div class="results-summary">
+                                    <div class="summary-item">
+                                        <span class="label">Invested Amount</span>
+                                        <span class="value" id="total-investment">₹0</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="label">Est. Returns</span>
+                                        <span class="value" id="total-returns">₹0</span>
+                                    </div>
+                                    <div class="summary-item total">
+                                        <span class="label">Total Value</span>
+                                        <span class="value" id="maturity-value">₹0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="results-charts">
+                                <div class="chart-container">
+                                    <canvas id="sip-chart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="sip-growth-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debt Repayment Calculator -->
+                <div class="calculator-section" id="debt-calculator">
+                    <div class="calculator-grid">
+                        <div class="calculator-form">
+                            <div class="form-group">
+                                <label>Total Debt Amount</label>
+                                <div class="input-group">
+                                    <span class="input-prefix">₹</span>
+                                    <input type="number" id="debt-amount" placeholder="Enter amount" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Interest Rate (p.a)</label>
+                                <div class="input-group">
+                                    <input type="number" id="debt-rate" placeholder="Enter rate" min="0" max="100">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Payment</label>
+                                <div class="input-group">
+                                    <span class="input-prefix">₹</span>
+                                    <input type="number" id="monthly-payment" placeholder="Enter amount" min="0">
+                                </div>
+                            </div>
+                            <button class="calculate-btn" id="calculate-debt">
+                                <i class="fas fa-calculator"></i> Calculate Timeline
+                            </button>
+                        </div>
+
+                        <div class="calculator-results">
+                            <div class="results-header">
+                                <h3>Debt Repayment Timeline</h3>
+                                <div class="results-summary">
+                                    <div class="summary-item">
+                                        <span class="label">Total Interest</span>
+                                        <span class="value" id="total-interest-paid">₹0</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="label">Repayment Period</span>
+                                        <span class="value" id="repayment-period">0 months</span>
+                                    </div>
+                                    <div class="summary-item total">
+                                        <span class="label">Total Payment</span>
+                                        <span class="value" id="total-debt-payment">₹0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="results-charts">
+                                <div class="chart-container">
+                                    <canvas id="debt-timeline-chart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="debt-breakdown-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Retirement Calculator -->
+                <div class="calculator-section" id="retirement-calculator">
+                    <div class="calculator-grid">
+                        <div class="calculator-form">
+                            <div class="form-group">
+                                <label>Current Age</label>
+                                <div class="input-group">
+                                    <input type="number" id="current-age" placeholder="Enter age" min="18" max="70">
+                                    <span class="input-suffix">years</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Retirement Age</label>
+                                <div class="input-group">
+                                    <input type="number" id="retirement-age" placeholder="Enter age" min="45" max="75">
+                                    <span class="input-suffix">years</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Expenses</label>
+                                <div class="input-group">
+                                    <span class="input-prefix">₹</span>
+                                    <input type="number" id="monthly-expenses" placeholder="Enter amount" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Expected Inflation Rate</label>
+                                <div class="input-group">
+                                    <input type="number" id="retirement-inflation" placeholder="Enter rate" min="0" max="100">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Expected Return Rate</label>
+                                <div class="input-group">
+                                    <input type="number" id="retirement-return" placeholder="Enter rate" min="0" max="100">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <button class="calculate-btn" id="calculate-retirement">
+                                <i class="fas fa-calculator"></i> Calculate Corpus
+                            </button>
+                        </div>
+
+                        <div class="calculator-results">
+                            <div class="results-header">
+                                <h3>Retirement Planning Results</h3>
+                                <div class="results-summary">
+                                    <div class="summary-item">
+                                        <span class="label">Required Corpus</span>
+                                        <span class="value" id="required-corpus">₹0</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="label">Monthly Investment</span>
+                                        <span class="value" id="monthly-investment">₹0</span>
+                                    </div>
+                                    <div class="summary-item total">
+                                        <span class="label">Total Investment</span>
+                                        <span class="value" id="total-investment-needed">₹0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="results-charts">
+                                <div class="chart-container">
+                                    <canvas id="corpus-growth-chart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="investment-breakdown-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Allocation Calculator -->
+                <div class="calculator-section" id="allocation-calculator">
+                    <div class="calculator-grid">
+                        <div class="calculator-form">
+                            <div class="form-group">
+                                <label>Age</label>
+                                <div class="input-group">
+                                    <input type="number" id="investor-age" placeholder="Enter age" min="18" max="80">
+                                    <span class="input-suffix">years</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Risk Profile</label>
+                                <select id="risk-profile" class="form-select">
+                                    <option value="conservative">Conservative</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="aggressive">Aggressive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Investment Horizon</label>
+                                <div class="input-group">
+                                    <input type="number" id="investment-horizon" placeholder="Enter years" min="1">
+                                    <span class="input-suffix">years</span>
+                                </div>
+                            </div>
+                            <button class="calculate-btn" id="calculate-allocation">
+                                <i class="fas fa-calculator"></i> Generate Strategy
+                            </button>
+                        </div>
+
+                        <div class="calculator-results">
+                            <div class="results-header">
+                                <h3>Asset Allocation Strategy</h3>
+                                <div class="results-summary">
+                                    <div class="summary-item">
+                                        <span class="label">Equity Allocation</span>
+                                        <span class="value" id="equity-allocation">0%</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="label">Debt Allocation</span>
+                                        <span class="value" id="debt-allocation">0%</span>
+                                    </div>
+                                    <div class="summary-item total">
+                                        <span class="label">Other Assets</span>
+                                        <span class="value" id="other-allocation">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="results-charts">
+                                <div class="chart-container">
+                                    <canvas id="allocation-pie-chart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="risk-return-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="calculator.js"></script>
+</body>
+</html> 

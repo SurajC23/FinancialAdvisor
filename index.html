@@ -3,121 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Advisor - Your AI Financial Assistant</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Financial AI - Your AI Financial Assistant</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-robot"></i>
-                <span>Financial AI</span>
-            </div>
-            <div class="nav-links">
-                <a href="#chat" class="active">Chat</a>
-                <a href="#invest">Invest Smartly</a>
-                <a href="#loans">Close Loans</a>
-                <a href="#planning">Financial Planning</a>
-                <button class="theme-toggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
-            <button class="mobile-menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Main Chat Interface -->
-    <main class="chat-container">
-        <div class="chat-sidebar">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <h3>Your Financial Journey</h3>
                 <button class="new-chat-btn">
                     <i class="fas fa-plus"></i> New Chat
                 </button>
             </div>
             <div class="chat-history">
-                <!-- Chat history will be populated dynamically -->
+                <!-- Chat history will be populated here -->
             </div>
-        </div>
-        
-        <div class="chat-main">
-            <div class="chat-messages" id="chat-messages">
-                <!-- Initial AI message -->
-                <div class="message ai-message">
-                    <div class="message-content">
-                        <div class="message-header">
-                            <i class="fas fa-robot"></i>
-                            <span>Financial AI</span>
-                        </div>
-                        <p>Hello! I'm your AI financial assistant. How can I help you today?</p>
-                        <div class="quick-actions">
-                            <button class="quick-action-btn" data-topic="invest">
-                                <i class="fas fa-chart-line"></i> Investment Planning
-                            </button>
-                            <button class="quick-action-btn" data-topic="loans">
-                                <i class="fas fa-hand-holding-usd"></i> Loan Management
-                            </button>
-                            <button class="quick-action-btn" data-topic="planning">
-                                <i class="fas fa-bullseye"></i> Financial Goals
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="sidebar-footer">
+                <a href="calculator.html" class="calculator-link">
+                    <i class="fas fa-calculator"></i> Financial Calculators
+                </a>
             </div>
-            
-            <div class="chat-input-container">
-                <form id="chat-form" class="chat-form">
-                    <div class="input-wrapper">
-                        <input type="text" id="user-input" placeholder="Ask me anything about your finances..." autocomplete="off">
-                        <button type="submit" class="send-btn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                    <div class="input-options">
-                        <button type="button" class="option-btn" data-action="upload">
-                            <i class="fas fa-file-upload"></i> Upload Statement
-                        </button>
-                        <button type="button" class="option-btn" data-action="calculator">
-                            <i class="fas fa-calculator"></i> Calculator
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
+        </aside>
 
-    <!-- Calculator Modal -->
-    <div class="calculator-modal" id="calculator-modal">
-        <div class="calculator-container">
-            <div class="calculator-header">
-                <h2>Financial Calculator</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="calculator-tabs">
-                <button class="tab-btn active" data-calc="investment">
-                    <i class="fas fa-chart-line"></i> Investment
-                </button>
-                <button class="tab-btn" data-calc="loan">
-                    <i class="fas fa-hand-holding-usd"></i> Loan
-                </button>
-                <button class="tab-btn" data-calc="planning">
-                    <i class="fas fa-bullseye"></i> Planning
-                </button>
-            </div>
-            <div class="calculator-content">
-                <div class="calculator-form">
-                    <!-- Form content will be dynamically inserted here -->
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div class="welcome-message">
+                    <h1>Welcome to Financial AI</h1>
+                    <p>Your personal AI financial assistant. How can I help you today?</p>
+                    <div class="quick-actions">
+                        <button class="action-btn">
+                            <i class="fas fa-chart-line"></i>
+                            Investment Planning
+                        </button>
+                        <button class="action-btn">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Loan Management
+                        </button>
+                        <button class="action-btn">
+                            <i class="fas fa-bullseye"></i>
+                            Financial Goals
+                        </button>
+                    </div>
                 </div>
-                <div class="calculator-results">
-                    <!-- Results will be dynamically inserted here -->
+                <div class="messages" id="messages">
+                    <!-- Messages will be populated here -->
                 </div>
             </div>
-        </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea id="user-input" placeholder="Type your message here..." rows="1"></textarea>
+                    <button id="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="input-options">
+                    <button class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="script.js"></script>
