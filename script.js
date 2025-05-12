@@ -174,24 +174,18 @@ document.addEventListener('DOMContentLoaded', () => {
     actionButtons.forEach(button => {
         button.addEventListener('click', () => {
             const action = button.textContent.trim();
+            if (action === 'Investment Planning') {
+                document.getElementById('investment-modal').style.display = 'block';
+                return;
+            }
             addMessage('user', `I want to learn more about ${action}`);
-            
             // Show typing indicator
             const typingIndicator = addTypingIndicator();
-            
             setTimeout(() => {
                 // Remove typing indicator
                 typingIndicator.remove();
-                
                 let response = '';
                 switch(action) {
-                    case 'Investment Planning':
-                        response = "Investment planning involves creating a strategy to grow your wealth over time. Here's what you should know:\n\n" +
-                                 "1. Asset Allocation: Diversify across different investment types\n" +
-                                 "2. Risk Management: Understand your risk tolerance\n" +
-                                 "3. Regular Monitoring: Review and adjust your portfolio\n\n" +
-                                 "Would you like to use our investment calculator to explore potential returns?";
-                        break;
                     case 'Loan Management':
                         response = "Loan management helps you understand and optimize your debt. Key aspects include:\n\n" +
                                  "1. EMI Planning: Calculate and manage monthly payments\n" +
@@ -207,9 +201,57 @@ document.addEventListener('DOMContentLoaded', () => {
                                  "Would you like to use our financial planning calculator to estimate your needs?";
                         break;
                 }
-                addMessage('ai', response);
+                if (response) addMessage('ai', response);
             }, 1000);
         });
+    });
+
+    // Modal logic for Investment Planning
+    const investmentModal = document.getElementById('investment-modal');
+    const closeInvestmentModal = document.getElementById('close-investment-modal');
+    closeInvestmentModal.onclick = function() {
+        investmentModal.style.display = 'none';
+    };
+    window.onclick = function(event) {
+        if (event.target === investmentModal) {
+            investmentModal.style.display = 'none';
+        }
+    };
+    document.getElementById('investment-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const yearlyIncome = document.getElementById('yearly-income').value;
+        const yearlySpends = document.getElementById('yearly-spends').value;
+        const goals = document.getElementById('goals').value;
+        const investmentType = document.getElementById('investment-type').value;
+        const investmentData = {
+            yearlyIncome,
+            yearlySpends,
+            goals,
+            investmentType
+        };
+        investmentModal.style.display = 'none';
+        addMessage('ai', `<b>Investment Planning Details Submitted:</b><br><pre>${JSON.stringify(investmentData, null, 2)}</pre>`);
+
+        // Show typing indicator
+        const typingIndicator = addTypingIndicator();
+        try {
+            // Convert JSON to a readable query string
+            const queryString = encodeURIComponent(
+                `Yearly income: ${yearlyIncome}, Yearly spends: ${yearlySpends}, Goals: ${goals}, Investment type: ${investmentType}`
+            );
+            const url = `https://rahulsonone.app.n8n.cloud/webhook-test/608e5881-afec-441d-9bd9-920ba0a0eb1b?query=${queryString}`;
+            const response = await fetch(url, { method: 'POST' });
+            const data = await response.json();
+            typingIndicator.remove();
+            if (data && data.output) {
+                addMessage('ai', data.output.replace(/\n/g, '<br>'));
+            } else {
+                addMessage('ai', 'Sorry, no response received from the investment advisor API.');
+            }
+        } catch (err) {
+            typingIndicator.remove();
+            addMessage('ai', 'An error occurred while contacting the investment advisor API.');
+        }
     });
 
     // Initial welcome message
