@@ -217,16 +217,54 @@ document.addEventListener('DOMContentLoaded', () => {
             investmentModal.style.display = 'none';
         }
     };
+
+    // Helper to prettify investment plan output
+    function prettifyInvestmentPlanOutput(rawOutput) {
+        // Convert headings (e.g., lines starting with numbers or section names) to bold
+        let output = rawOutput
+            .replace(/^(\d+\..*)$/gm, '<b>$1</b>')
+            .replace(/^(Conclusion:|Investment Strategy|Year-Wise Breakdown|Current Financial Situation|Future Value of Car Cost|Future Value of Savings|Investment Plan):/gmi, '<b>$1:</b>');
+
+        // Convert year-wise breakdowns to HTML table if detected
+        const tableRegex = /\|\s*Year\s*\|[\s\S]+?\|\s*-+\s*\|([\s\S]+?)\n\n/;
+        const match = output.match(/\|\s*Year\s*\|[\s\S]+?(\|\s*-+\s*\|[\s\S]+?)(?=\n\n|$)/);
+        if (match) {
+            // Extract table block
+            const tableBlock = match[0];
+            const lines = tableBlock.trim().split('\n').filter(l => l.trim().startsWith('|'));
+            if (lines.length > 2) {
+                // First line: header, Second line: separator, Rest: rows
+                const headerCells = lines[0].split('|').map(cell => cell.trim()).filter(Boolean);
+                const rows = lines.slice(2).map(row => row.split('|').map(cell => cell.trim()).filter(Boolean));
+                let tableHtml = '<table border="1" cellpadding="5" cellspacing="0"><thead><tr>';
+                headerCells.forEach(cell => { tableHtml += `<th>${cell}</th>`; });
+                tableHtml += '</tr></thead><tbody>';
+                rows.forEach(row => {
+                    tableHtml += '<tr>';
+                    row.forEach(cell => { tableHtml += `<td>${cell}</td>`; });
+                    tableHtml += '</tr>';
+                });
+                tableHtml += '</tbody></table><br>';
+                output = output.replace(tableBlock, tableHtml);
+            }
+        }
+        // Add <br> for newlines not in tables
+        output = output.replace(/\n/g, '<br>');
+        return output;
+    }
+
     document.getElementById('investment-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         const yearlyIncome = document.getElementById('yearly-income').value;
         const yearlySpends = document.getElementById('yearly-spends').value;
-        const goals = document.getElementById('goals').value;
+        const yearlySaving = document.getElementById('yearly-saving').value;
+        const financialGoal = document.getElementById('financial-goal').value;
         const investmentType = document.getElementById('investment-type').value;
         const investmentData = {
             yearlyIncome,
             yearlySpends,
-            goals,
+            yearlySaving,
+            financialGoal,
             investmentType
         };
         investmentModal.style.display = 'none';
@@ -237,14 +275,13 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Convert JSON to a readable query string
             const queryString = encodeURIComponent(
-                `Yearly income: ${yearlyIncome}, Yearly spends: ${yearlySpends}, Goals: ${goals}, Investment type: ${investmentType}`
-            );
+                `My yearly income is ${yearlyIncome} and my yearly spending is ${yearlySpends}. After my expenses, I have savings of ${yearlySaving}. My goal is to buy luxury car of ${financialGoal}. give me the detailed plan including investment ideas like FD, Gold, Stock, Mutual funds and their percentages of investment to achieve this goal. Consider inflation yearly 7% and provide me detailed year wise output for next years till achieve my goal.`)
             const url = `https://rahulsonone.app.n8n.cloud/webhook-test/608e5881-afec-441d-9bd9-920ba0a0eb1b?query=${queryString}`;
             const response = await fetch(url, { method: 'POST' });
             const data = await response.json();
             typingIndicator.remove();
             if (data && data.output) {
-                addMessage('ai', data.output.replace(/\n/g, '<br>'));
+                addMessage('ai', prettifyInvestmentPlanOutput(data.output));
             } else {
                 addMessage('ai', 'Sorry, no response received from the investment advisor API.');
             }
